@@ -9,5 +9,5 @@ Daftar biodata siswa Dicoding Academy
 
 
 berikut untuk baris yang tanpa 2 spasi
-ini tanpa 2 spasi 
-  dan ini pakai 2 spasi
+ini tanpa 2 spasi  
+dan ini pakai 2 spasi pada baris sebelumnya
