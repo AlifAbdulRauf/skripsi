@@ -4,7 +4,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/css/pikaday.min.css">
     <h3 class="font-weight-bold mx-4">Form Tambah Reservasi</h3>
     <div class="mx-4">
-        <form method="POST" action="{{ route('reservasi.insertps') }}" enctype="multipart/form-data" style="width: 95%;">
+        <form method="POST" action="{{ route('pasienlama.insert') }}" enctype="multipart/form-data" style="width: 95%;">
             @csrf
             <div class="row">
                 <div class="col-lg-12 mb-4">
@@ -76,7 +76,7 @@
                         <div class="form-group">
                             <label>Pilih Waktu</label>
                             <select name="jam_mulai" id="jam_mulai" class="form-control @error('jam_mulai') is-invalid @enderror" required disabled>
-                                <option value="">Pilih Waktu</option>
+                                <option value="">Waktu yang tersedia</option>
                             </select>
                             <div class="invalid-feedback">
                                 @error('jam_mulai')
@@ -134,7 +134,7 @@
             }
         
             function fetchDokter(lokasiId) {
-                fetch('/api/dokter-by-lokasi?lokasi_id=' + lokasiId)
+                fetch('/api/dokter-by-lokasi-p?lokasi_id=' + lokasiId)
                     .then(response => response.json())
                     .then(data => {
                         dokterSelect.innerHTML = '<option value="">Pilih Dokter</option>';
@@ -149,7 +149,7 @@
             }
         
             function fetchAvailableDays(dokterId) {
-                fetch('/api/available-days?dokter_id=' + dokterId)
+                fetch('/api/available-days-p?dokter_id=' + dokterId)
                     .then(response => response.json())
                     .then(days => {
                         var availableDays = days.map(day => {
@@ -159,6 +159,8 @@
                                 case 'Rabu': return 3;
                                 case 'Kamis': return 4;
                                 case 'Jumat': return 5;
+                                case 'Sabtu': return 6;
+                                case 'Minggu': return 0;
                                 default: return null;
                             }
                         }).filter(day => day !== null);
@@ -169,7 +171,7 @@
             }
         
             function fetchSesi(dokterId, hari) {
-                fetch(`/api/sesi-by-dokter-and-hari?dokter_id=${dokterId}&hari=${hari}`)
+                fetch(`/api/sesi-by-dokter-and-hari-p?dokter_id=${dokterId}&hari=${hari}`)
                     .then(response => response.json())
                     .then(sesi => {
                         var timeslots = [];
@@ -202,7 +204,7 @@
         
                         // Fetch booked times
                         var selectedDate = datePicker.toString('YYYY-MM-DD');
-                        fetch(`/api/booked-times?dokter_id=${dokterId}&tanggal=${selectedDate}`)
+                        fetch(`/api/booked-times-p?dokter_id=${dokterId}&tanggal=${selectedDate}`)
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error('Jaringan Bermasalah ' + response.statusText);
@@ -225,7 +227,7 @@
                                     });
                                 });
 
-                                startTimeSelect.innerHTML = '<option value="">Pilih Waktu</option>';
+                                startTimeSelect.innerHTML = '<option value="">Waktu yang tersedia</option>';
                                 availableTimes.forEach(function(timeslot) {
                                     var option = document.createElement('option');
                                     option.value = timeslot.start;
@@ -261,7 +263,7 @@
             });
         
             perawatanSelect.addEventListener('change', function() {
-                startTimeSelect.innerHTML = '<option value="">Pilih Waktu</option>';
+                startTimeSelect.innerHTML = '<option value="">Waktu yang tersedia</option>';
                 startTimeSelect.disabled = true;
             });
         });

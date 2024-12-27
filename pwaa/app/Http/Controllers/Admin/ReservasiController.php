@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use DateTime;
 use DateInterval;
+use Illuminate\Validation\Rules;
+use Illuminate\Auth\Events\Registered;
 
 class ReservasiController extends Controller
 {
@@ -141,9 +143,11 @@ class ReservasiController extends Controller
     
     public function insert(Request $request)
     {
-        try {
+        // try {
             $validatedData = $request->validate([
                 'nama' => 'required|string|max:255',
+                'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
                 'tempat_lahir' => 'required|string|max:255',
                 'tanggal_lahir' => 'required|date',
                 'pekerjaan' => 'required|string|max:255',
@@ -156,6 +160,18 @@ class ReservasiController extends Controller
                 'perawatan_id' => 'required|array|max:2',
                 'perawatan_id.*' => 'integer|exists:perawatan,perawatan_id',
             ]);
+    
+            $user = User::create([
+                'name' => $request->nama,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => 'Pasien',
+            ]);
+
+            
+    
+            event(new Registered($user));
+            $user_id = $user->id;
     
             $tanggal = Carbon::parse($validatedData['tanggal'])->format('Y-m-d');
     
@@ -189,6 +205,7 @@ class ReservasiController extends Controller
                 'pekerjaan' => $validatedData['pekerjaan'],
                 'alamat' => $validatedData['alamat'],
                 'no_Telp' => $validatedData['no_Telp'],
+                'user_id' => $user_id,
             ]);
             
             $reservasi_rekam_medik = Reservasi::create([
@@ -218,14 +235,14 @@ class ReservasiController extends Controller
 
             Alert::success('Success', 'Reservasi berhasil ditambahkan!');
             return redirect()->route('reservasi.index');
-        } catch (Exception $e) {
-            dd('simpan data gagal : ', $e);
-        }
+        // } catch (Exception $e) {
+        //     dd('simpan data gagal : ', $e);
+        // }
     }
 
     public function insert_pasien_lama(Request $request)
     {
-        try {
+        // try {
             $validatedData = $request->validate([
                 'pasien_id' => 'required|integer',
                 'lokasi_id' => 'required|integer|exists:lokasi,lokasi_id',
@@ -287,9 +304,9 @@ class ReservasiController extends Controller
 
             Alert::success('Success', 'Reservasi berhasil ditambahkan!');
             return redirect()->route('reservasi.index');
-        } catch (Exception $e) {
-            dd('simpan data gagal : ', $e);
-        }
+        // } catch (Exception $e) {
+        //     printf('simpan data gagal : ', $e);
+        // }
     }
 
     public function getBookedTimes(Request $request)
@@ -451,7 +468,7 @@ class ReservasiController extends Controller
 
     public function update(Request $request, $reservasi_id)
     {
-        try {
+        // try {
             $validatedData = $request->validate([
                 'nama' => 'required|string|max:255',
                 'tempat_lahir' => 'required|string|max:255',
@@ -531,9 +548,9 @@ class ReservasiController extends Controller
     
             Alert::success('Success', 'Reservasi berhasil diperbarui!');
             return redirect()->route('reservasi.index');
-        } catch (Exception $e) {
-            dd('update data gagal : ', $e);
-        }
+        // } catch (Exception $e) {
+        //     dd('update data gagal : ', $e);
+        // }
     }
     
 }

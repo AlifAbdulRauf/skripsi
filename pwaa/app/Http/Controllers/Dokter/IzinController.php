@@ -11,16 +11,20 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
-
+use App\Services\WhatsAppService;
 
 
 class IzinController extends Controller
 {
     protected $izin;
+    protected $whatsAppService;
 
-    public function __construct(izin $izin)
+
+    public function __construct(izin $izin, WhatsAppService $whatsAppService)
     {
         $this->izin = $izin;
+        $this->whatsAppService = $whatsAppService;
+
     }
 
     public function index()
@@ -138,9 +142,70 @@ class IzinController extends Controller
         return view('admin.izinjadwal', ['datajadwal' => $datajadwal]);
     }
 
-    public function tolak($id)
+    // public function terima($id)
+    // {
+    //     $reservasi_rekam_medik = Reservasi::where('reservasi_id', $id)->firstOrFail();
+    
+    //     // Prepare data for reservasi_rekam_medik
+    //     $reservasiData = [
+    //         'draft' => 0,
+    //     ];
+    //     // Update the reservasi_rekam_medik
+    //     $reservasi_rekam_medik->update($reservasiData);
+    //     $reservasi = Reservasi::with(['pasien'])
+    //     ->where('reservasi_id', $id)
+    //     ->firstOrFail();
+
+    //     $this->whatsAppService->sendWhatsAppMessage($reservasi->pasien->no_Telp, 'Reservasi Anda telah diterima, silahkan cek status reservasi anda pada akun website Xenon Dental House anda');
+        
+
+    //     // Redirect or return a response
+    //     Alert::success('Berhasil!', 'Data reservasi_rekam_medik pasien diterima !');
+    //     return redirect()->route('reservasi.pasien');
+
+    // }
+
+
+
+    // public function tolak(Request $request, $id)
+    // {
+    //     // Validasi input alasan
+    //     $request->validate([
+    //         'alasan' => 'required|string|max:255',
+    //     ]);
+    
+    //     // Ambil data reservasi yang ditolak
+    //     $reservasi_rekam_medik = Reservasi::where('reservasi_id', $id)->firstOrFail();
+    
+    //     // Update data reservasi, set ke draft atau status ditolak
+    //     $reservasiData = [
+    //         'draft' => 1,
+    //     ];
+    //     $reservasi_rekam_medik->update($reservasiData);
+    
+    //     // Dapatkan reservasi dengan data pasien
+    //     $reservasi = Reservasi::with(['pasien'])->where('reservasi_id', $id)->firstOrFail();
+    
+    //     // Dapatkan alasan dari request
+    //     $alasan = $request->input('alasan');
+    
+    //     // Kirim pesan WhatsApp
+    //     $this->whatsAppService->sendWhatsAppMessage($reservasi->pasien->no_Telp, "Reservasi Anda telah ditolak. Alasan: $alasan. Silakan cek status reservasi Anda di akun website Xenon Dental House Anda.");
+    
+    //     // Kembalikan response JSON agar AJAX bisa memprosesnya dengan benar
+    //     return response()->json(['success' => true, 'message' => 'Reservasi berhasil ditolak']);
+    // }
+    
+
+
+    public function tolak(Request $request, $id)
     {
         $izin = Izin::where('izin_id', $id)->firstOrFail();
+        $dokter = DB::table('izin_dokter')
+        ->join('dokter','izin_dokter.dokter_id', '=', 'dokter.dokter_id' )
+        ->where('izin_dokter.izin_id', $id)
+        ->select('izin_dokter.*', 'dokter.*')
+        ->first();
     
         // Prepare data for reservasi
         $perizinan = [
@@ -149,14 +214,32 @@ class IzinController extends Controller
         // Update the reservasi
         $izin->update($perizinan);
 
-        // Redirect or return a response
-        Alert::success('Berhasil!', 'Data perizinan dokter ditolak !');
-        return redirect()->route('owner.izin.index');
+                // Validasi input alasan
+        $request->validate([
+            'alasan' => 'required|string|max:255',
+        ]);
+
+       // Dapatkan alasan dari request
+        $alasan = $request->input('alasan');
+    
+        // Kirim pesan WhatsApp
+        $this->whatsAppService->sendWhatsAppMessage($dokter->nomor_hp, "Permintaan izin Anda telah ditolak. Alasan: $alasan. Silakan cek statusnya pada akun website Xenon Dental House Anda.");
+    
+
+        // Alert::success('Berhasil!', 'Data perizinan dokter ditolak !');
+        // return redirect()->route('owner.izin.index');
+        return response()->json(['success' => true, 'message' => 'Izin berhasil ditolak']);
 
     }
     public function terima($id)
     {
         $izin = Izin::where('izin_id', $id)->firstOrFail();
+        $dokter = DB::table('izin_dokter')
+        ->join('dokter','izin_dokter.dokter_id', '=', 'dokter.dokter_id' )
+        ->where('izin_dokter.izin_id', $id)
+        ->select('izin_dokter.*', 'dokter.*')
+        ->first();
+        
     
         // Prepare data for reservasi
         $perizinan = [
@@ -164,6 +247,7 @@ class IzinController extends Controller
         ];
         // Update the reservasi
         $izin->update($perizinan);
+        $this->whatsAppService->sendWhatsAppMessage($dokter->nomor_hp, 'Permintaan izin anda sudah diterima, silahkan cek statusnya pada akun website Xenon Dental House anda');
 
         // Redirect or return a response
         Alert::success('Berhasil!', 'Data perizinan dokter diterima !');

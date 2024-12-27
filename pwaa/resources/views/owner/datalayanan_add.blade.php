@@ -18,7 +18,7 @@
 
         <div class="form-group">
             <label>Harga</label>
-            <input name="harga" class="form-control @error('harga') is-invalid @enderror" value="{{ old('harga') }}">
+            <input name="harga" type="number" class="form-control @error('harga') is-invalid @enderror" value="{{ old('harga') }}">
             <div class="invalid-feedback">
                 @error('harga')
                     {{ $message }}
@@ -28,7 +28,7 @@
 
         <div class="form-group">
             <label>Estimasi Waktu</label>
-            <input name="estimasi_waktu_perawatan" class="form-control @error('estimasi_waktu_perawatan') is-invalid @enderror" value="{{ old('estimasi_waktu_perawatan') }}">
+            <input name="estimasi_waktu_perawatan" type="number" class="form-control @error('estimasi_waktu_perawatan') is-invalid @enderror" value="{{ old('estimasi_waktu_perawatan') }}">
             <div class="invalid-feedback">
                 @error('estimasi_waktu_perawatan')
                     {{ $message }}

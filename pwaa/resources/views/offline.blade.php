@@ -52,7 +52,9 @@
     <div class="container">
         <div class="icon">📴</div>
         <h1>Ups! Halaman Tidak Dapat Diakses</h1>
-        <p>HALAMAN INI TIDAK BISA DIAKSES DIKARENAKAN FITUR OFFLINE WEBSITE HANYA TERBATAS MENGAKSES BEBERAPA HALAMAN SAJA</p>
+        <p>HALAMAN INI TIDAK BISA DIAKSES DIKARENAKAN FITUR OFFLINE WEBSITE HANYA TERBATAS MENGAKSES BEBERAPA HALAMAN YANG SUDAH ANDA AKSES</p>
+        <p>ATAU</p>
+        <p>AKSES OFFLINE WEBSITE SUDAH MELEBIHI BATAS WAKTU MAKSIMAL</p>
         <a href="javascript:history.back()" class="button">Kembali</a>
 </body>
 </html>

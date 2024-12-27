@@ -38,7 +38,7 @@
 
         <div class="form-group">
             <label>Jumlah Pengeluaran</label>
-            <input name="jumlah_pengeluaran" class="form-control @error('jumlah_pengeluaran') is-invalid @enderror" value="{{ $pengeluaran->jumlah_pengeluaran }}">
+            <input name="jumlah_pengeluaran" type="number" class="form-control @error('jumlah_pengeluaran') is-invalid @enderror" value="{{ $pengeluaran->jumlah_pengeluaran }}">
             <div class="invalid-feedback">
                 @error('jumlah_pengeluaran')
                     {{ $message }}

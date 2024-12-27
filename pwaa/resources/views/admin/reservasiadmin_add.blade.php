@@ -2,7 +2,7 @@
 
 @section('main-content')
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/css/pikaday.min.css">
-    <h3 class="font-weight-bold mx-4">Form Tambah Reservasi</h3>
+    <h3 class="font-weight-bold mx-4">Form Tambah Reservasi Pasien Baru</h3>
     <div class="mx-4">
         <form method="POST" action="{{ route('reservasi.insert') }}" enctype="multipart/form-data" style="width: 95%;">
             @csrf
@@ -18,6 +18,40 @@
                                 @enderror
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <div class="mt-4">
+                                <x-input-label for="email" :value="__('Email')" />
+                                <x-text-input id="email" class="form-control" type="email" name="email" :value="old('email')" required autocomplete="username" />
+                                <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                            </div>
+                        </div>
+                
+                        <!-- Password -->
+                        <div class="mt-4">
+                            <x-input-label for="password" :value="__('Password')" />
+                
+                            <x-text-input id="password" class="form-control"
+                                            type="password"
+                                            name="password"
+                                            required autocomplete="new-password" />
+                
+                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                        </div>
+                
+                        <!-- Confirm Password -->
+                        <div class="form-group">
+                            <div class="mt-4">
+                                <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+                    
+                                <x-text-input id="password_confirmation" class="form-control"
+                                                type="password"
+                                                name="password_confirmation" required autocomplete="new-password" />
+                    
+                                <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+                            </div>
+                        </div>
+                
                         <div class="form-group">
                             <label>Tempat Lahir</label>
                             <input type="text" name="tempat_lahir" class="form-control @error('tempat_lahir') is-invalid @enderror" value="{{ old('tempat_lahir') }}" required>
@@ -117,7 +151,7 @@
                         <div class="form-group">
                             <label>Pilih Waktu</label>
                             <select name="jam_mulai" id="jam_mulai" class="form-control @error('jam_mulai') is-invalid @enderror" required disabled>
-                                <option value="">Pilih Waktu</option>
+                                <option value="">Waktu yang tersedia</option>
                             </select>
                             <div class="invalid-feedback">
                                 @error('jam_mulai')
@@ -200,6 +234,8 @@
                                 case 'Rabu': return 3;
                                 case 'Kamis': return 4;
                                 case 'Jumat': return 5;
+                                case 'Sabtu': return 6;
+                                case 'Minggu': return 0;
                                 default: return null;
                             }
                         }).filter(day => day !== null);
@@ -266,7 +302,7 @@
                                     });
                                 });
 
-                                startTimeSelect.innerHTML = '<option value="">Pilih Waktu</option>';
+                                startTimeSelect.innerHTML = '<option value="">Waktu yang tersedia</option>';
                                 availableTimes.forEach(function(timeslot) {
                                     var option = document.createElement('option');
                                     option.value = timeslot.start;
@@ -302,7 +338,7 @@
             });
         
             perawatanSelect.addEventListener('change', function() {
-                startTimeSelect.innerHTML = '<option value="">Pilih Waktu</option>';
+                startTimeSelect.innerHTML = '<option value="">Waktu yang tersedia</option>';
                 startTimeSelect.disabled = true;
             });
         });

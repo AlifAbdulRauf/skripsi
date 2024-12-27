@@ -45,11 +45,13 @@ class ReservasiPasienController extends Controller
         ->join('lokasi', 'reservasi_rekam_medik.lokasi_id', '=', 'lokasi.lokasi_id')
         ->join("dokter", "reservasi_rekam_medik.dokter_id", "=", "dokter.dokter_id")
         ->where('pasien.user_id', $userid->id)
-        ->where('status_penginput', 0)
         ->select('reservasi_rekam_medik.*', 
-        'lokasi.*',
-        "pasien.*",
-        'dokter.nama as nama_dokter')->get();
+            'lokasi.*',
+            "pasien.*",
+            'dokter.nama as nama_dokter')
+        ->orderBy('reservasi_rekam_medik.reservasi_id', 'DESC') // Urutkan berdasarkan data terbaru
+        ->get();
+    
 
         $reservasi_admin = DB::table("reservasi_rekam_medik")
         ->join("pasien", "reservasi_rekam_medik.pasien_id", "=", "pasien.pasien_id")->get();
@@ -104,11 +106,33 @@ class ReservasiPasienController extends Controller
         $perawatan = Perawatan::all();
         $dokter = Dokter::all();
         $user = Auth::user();
+        // $pasien = DB::table('pasien')
+        // ->join('reservasi_rekam_medik', 'pasien.pasien_id', '=', 'reservasi_rekam_medik.pasien_id')
+        // ->where('user_id', $user->id)
+        // ->where('reservasi_rekam_medik.draft', 0)
+        // ->groupBy('reservasi_rekam_medik.pasien_id')
+        // ->select('pasien.pasien_id', DB::raw('MAX(pasien.nama) as nama')) // Contoh agregasi
+        // ->get();
+
         $pasien = DB::table('pasien')
-        ->join('reservasi_rekam_medik', 'pasien.pasien_id', '=', 'reservasi_rekam_medik.pasien_id')
-        ->where('user_id', $user->id)
+        ->select(
+            DB::raw('COALESCE(pasien.pasien_id, reservasi_rekam_medik.pasien_id) as pasien_id'),
+            DB::raw('MAX(pasien.nama) as nama'),
+            DB::raw('MAX(pasien.no_Telp) as no_Telp')
+        )
+        ->leftJoin('reservasi_rekam_medik', 'pasien.pasien_id', '=', 'reservasi_rekam_medik.pasien_id')
+        ->rightJoin('reservasi_rekam_medik as r2', 'pasien.pasien_id', '=', 'r2.pasien_id') // Simulasi FULL JOIN
         ->where('reservasi_rekam_medik.draft', 0)
+        ->where('pasien.user_id', $user->id)
+        ->groupBy(DB::raw('COALESCE(pasien.pasien_id, reservasi_rekam_medik.pasien_id)'))
+        ->orderBy(DB::raw('COALESCE(pasien.pasien_id, reservasi_rekam_medik.pasien_id)'))
         ->get();
+
+    
+    
+        
+    
+    
     
         $tomorrow = Carbon::tomorrow()->format('Y-m-d');
     
@@ -137,7 +161,7 @@ class ReservasiPasienController extends Controller
 
     public function insert_pasien_lama(Request $request)
     {
-        try {
+        // try {
             $validatedData = $request->validate([
                 'pasien_id' => 'required|integer',
                 'lokasi_id' => 'required|integer|exists:lokasi,lokasi_id',
@@ -179,8 +203,8 @@ class ReservasiPasienController extends Controller
                 'tanggal' => $tanggal,
                 'jam_mulai' => $validatedData['jam_mulai'],
                 'jam_selesai' => $endTime,
-                'status_penginput' => 1,
-                'draft' => 0
+                'status_penginput' => 0,
+
 
             ]);
 
@@ -198,16 +222,16 @@ class ReservasiPasienController extends Controller
             $reservasi_rekam_medik->perawatan()->attach($syncData);
 
             Alert::success('Success', 'Reservasi berhasil ditambahkan!');
-            return redirect()->route('reservasi.index');
-        } catch (Exception $e) {
-            dd('simpan data gagal : ', $e);
-        }
+            return redirect()->route('pasien.history');
+        // } catch (Exception $e) {
+        //     dd('simpan data gagal : ', $e);
+        // }
     }
     
     
     public function insert(Request $request)
     {
-        try {
+        // try {
             $validatedData = $request->validate([
                 'nama' => 'required|string|max:255',
                 'tempat_lahir' => 'required|string|max:255',
@@ -284,9 +308,9 @@ class ReservasiPasienController extends Controller
 
             Alert::success('Success', 'Reservasi berhasil ditambahkan!');
             return redirect()->route('pasien.history');
-        } catch (Exception $e) {
-            dd('simpan data gagal : ', $e);
-        }
+        // } catch (Exception $e) {
+        //     printf('simpan data gagal : ', $e);
+        // }
     }
 
     public function getBookedTimes(Request $request)
@@ -388,7 +412,7 @@ class ReservasiPasienController extends Controller
 
     public function update(Request $request, $id)
     {
-        try {
+        // try {
             $validatedData = $request->validate([
                 'tanggal' => 'required|date|after:today',
                 'jam_mulai' => 'required',
@@ -435,8 +459,8 @@ class ReservasiPasienController extends Controller
 
             Alert::success('Berhasil!', 'Data reservasi_rekam_medik pasien berhasil diperbarui!');
             return redirect()->route('reservasi.index');
-        } catch (Exception $e) {
-            dd('simpan data gagal : ', $e);
-        }
+        // } catch (Exception $e) {
+        //     dd('simpan data gagal : ', $e);
+        // }
     }
 }

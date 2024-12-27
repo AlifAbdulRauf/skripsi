@@ -25,13 +25,22 @@ class HomeController extends Controller
                         ->count();
         $visitsThisMonth = $this->getMonthlyVisits($currentMonth);
     
+        // $visitStats = [
+        //     'today' => $visitsToday,
+        //     'week1' => $visitsThisMonth['week1'],
+        //     'week2' => $visitsThisMonth['week2'],
+        //     'week3' => $visitsThisMonth['week3'],
+        //     'week4' => $visitsThisMonth['week4'],
+        //     'this_month' => $visitsThisMonth['this_month'],
+        // ];
+
         $visitStats = [
             'today' => $visitsToday,
             'week1' => $visitsThisMonth['week1'],
             'week2' => $visitsThisMonth['week2'],
             'week3' => $visitsThisMonth['week3'],
             'week4' => $visitsThisMonth['week4'],
-            'this_month' => $visitsThisMonth['this_month'],
+            'this_month' => $visitsThisMonth['week1'] + $visitsThisMonth['week2'] + $visitsThisMonth['week3'] + $visitsThisMonth['week4'],
         ];
         $visits = DB::table('reservasi_rekam_medik')
                     ->whereYear('tanggal', Carbon::now()->year)
@@ -183,20 +192,19 @@ class HomeController extends Controller
     
         // Fetch treatments for the selected month
         $treatments = DB::table('Perawatan')
-        ->join('perawatan_reservasi', 'Perawatan.perawatan_id', '=', 'perawatan_reservasi.perawatan_id')
-        ->join('reservasi_rekam_medik', 'perawatan_reservasi.reservasi_id', '=', 'reservasi_rekam_medik.reservasi_id')
-        ->whereYear('reservasi_rekam_medik.tanggal', $year)
-        ->whereMonth('reservasi_rekam_medik.tanggal', $monthNumber)
-        ->select('Perawatan.jenis_Perawatan', DB::raw('count(*) as total'))
+        ->leftJoin('perawatan_reservasi', 'Perawatan.perawatan_id', '=', 'perawatan_reservasi.perawatan_id')
+        ->leftJoin('reservasi_rekam_medik', function ($join) use ($month) {
+            $join->on('perawatan_reservasi.reservasi_id', '=', 'reservasi_rekam_medik.reservasi_id')
+                 ->whereRaw("DATE_FORMAT(reservasi_rekam_medik.tanggal, '%Y-%m') = ?", [$month]);
+        })
+        ->select('Perawatan.jenis_Perawatan', DB::raw('count(reservasi_rekam_medik.reservasi_id) as total'))
         ->groupBy('Perawatan.jenis_Perawatan')
         ->get();
     
         // Calculate patient stats for the selected month
         $patientStats = DB::table('Pasien')
-
         ->join('reservasi_rekam_medik', 'Pasien.pasien_id', '=', 'reservasi_rekam_medik.pasien_id')
-        ->whereYear('reservasi_rekam_medik.tanggal', $year)
-        ->whereMonth('reservasi_rekam_medik.tanggal', $monthNumber)
+        ->whereRaw("DATE_FORMAT(reservasi_rekam_medik.tanggal, '%Y-%m') = ?", [$month])
         ->select(
             DB::raw("SUM(CASE WHEN DATEDIFF(CURDATE(), tanggal_lahir) / 365.25 < 2 THEN 1 ELSE 0 END) as bayi"),
             DB::raw("SUM(CASE WHEN DATEDIFF(CURDATE(), tanggal_lahir) / 365.25 BETWEEN 2 AND 12 THEN 1 ELSE 0 END) as anak"),
@@ -207,12 +215,13 @@ class HomeController extends Controller
     
         // Fetch doctor performance for the selected month
         $doctorPerformance = DB::table('Dokter')
-                            ->join('reservasi_rekam_medik', 'Dokter.dokter_id', '=', 'reservasi_rekam_medik.dokter_id')
-                            ->whereYear('reservasi_rekam_medik.tanggal', $year)
-                            ->whereMonth('reservasi_rekam_medik.tanggal', $monthNumber)
-                            ->select('Dokter.nama', DB::raw('count(*) as total'))
-                            ->groupBy('Dokter.nama')
-                            ->get();
+        ->leftJoin('reservasi_rekam_medik', function ($join) use ($month) {
+            $join->on('Dokter.dokter_id', '=', 'reservasi_rekam_medik.dokter_id')
+                 ->whereRaw("DATE_FORMAT(reservasi_rekam_medik.tanggal, '%Y-%m') = ?", [$month]);
+        })
+        ->select('Dokter.nama', DB::raw('count(reservasi_rekam_medik.dokter_id) as total'))
+        ->groupBy('Dokter.nama')
+        ->get();
     
         // Determine the user role and return the appropriate view
         $user = Auth::user();

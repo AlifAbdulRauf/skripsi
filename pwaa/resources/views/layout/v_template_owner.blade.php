@@ -9,12 +9,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
 
 
 
     <title>{{ config('app.name', 'Laravel') }}</title>
+    
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -22,6 +23,9 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        {{-- sweetalert --}}
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <!-- Custom fonts for this template-->
     <link href=" {{ URL::to('vendor/fontawesome-free/css/all.min.css') }} " rel="stylesheet" type="text/css">
@@ -131,6 +135,8 @@
     <!-- Bootstrap core JavaScript-->
     <script src="{{ URL::to('vendor/jquery/jquery.min.js') }} "></script>
     <script src="{{ URL::to('vendor/bootstrap/js/bootstrap.bundle.min.js') }} "></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Core plugin JavaScript-->
     <script src="{{ URL::to('vendor/jquery-easing/jquery.easing.min.js') }} "></script>

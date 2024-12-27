@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/available-days-p', [ReservasiPasienController::class, 'getAvailableDays']);
     Route::get('/api/booked-times-p', [ReservasiPasienController::class, 'getBookedTimes']);
     Route::get('/api/sesi-by-dokter-and-hari-p', [ReservasiPasienController::class, 'getSesiByDokterAndHari']);
+    
 
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

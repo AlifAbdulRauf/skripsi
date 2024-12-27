@@ -76,7 +76,7 @@
                         <div class="form-group">
                             <label>Pilih Waktu</label>
                             <select name="jam_mulai" id="jam_mulai" class="form-control @error('jam_mulai') is-invalid @enderror" required disabled>
-                                <option value="">Pilih Waktu</option>
+                                <option value="">Waktu yang tersedia</option>
                             </select>
                             <div class="invalid-feedback">
                                 @error('jam_mulai')
@@ -159,6 +159,8 @@
                                 case 'Rabu': return 3;
                                 case 'Kamis': return 4;
                                 case 'Jumat': return 5;
+                                case 'Sabtu': return 6;
+                                case 'Minggu': return 0;
                                 default: return null;
                             }
                         }).filter(day => day !== null);
@@ -225,7 +227,7 @@
                                     });
                                 });
 
-                                startTimeSelect.innerHTML = '<option value="">Pilih Waktu</option>';
+                                startTimeSelect.innerHTML = '<option value="">Waktu yang tersedia</option>';
                                 availableTimes.forEach(function(timeslot) {
                                     var option = document.createElement('option');
                                     option.value = timeslot.start;
@@ -261,9 +263,28 @@
             });
         
             perawatanSelect.addEventListener('change', function() {
-                startTimeSelect.innerHTML = '<option value="">Pilih Waktu</option>';
+                startTimeSelect.innerHTML = '<option value="">Waktu yang tersedia</option>';
                 startTimeSelect.disabled = true;
             });
         });
     </script>  
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let pasien = @json($pasien);
+        let selectPasien = document.getElementById('pasien_id');
+
+        selectPasien.addEventListener('click', function(e) {
+            if (!pasien || pasien.length === 0) {
+                e.preventDefault(); // Mencegah dropdown terbuka
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Tidak Ada Pasien',
+                    text: 'Anda belum pernah mereservasi sebelumnya, silahkan reservasi pada menu reservasi pasien baru.',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    });
+</script>
 @endsection

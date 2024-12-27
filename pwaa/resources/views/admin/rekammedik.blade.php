@@ -75,6 +75,21 @@
                     @endif   
                 @endforeach
             </tr>
+            <tr>
+                <th>Biaya Total</th>
+                @php
+                    $total = 0;
+                @endphp
+                @foreach($pasien as $item)
+                    @if($item->reservasi_id == $medik->reservasi_id)
+                        @php
+                        $total += $item->harga;
+                        @endphp
+                    @endif   
+                @endforeach
+                <td>{{ $total ?? '' }}</td>
+            </tr>
+            
            
         </tbody>
     </table>

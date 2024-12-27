@@ -5,8 +5,9 @@
 <h3 class="font-weight-bold mx-4">Edit data Pasien </h3>
 <!-- Page Heading -->
 <div class="mx-4">
-    <form action="/adatapasien/update/{{ $pasien->pasien_id }}" method="post" enctype="multipart/form-data">
+    <form action="/ddatapasien/update/{{ $pasien->pasien_id }}" method="post" enctype="multipart/form-data">
         @csrf
+        
         <div class="form-group">
             <label>Nama Pasien</label>
             <input name="nama" class="form-control @error('nama') is-invalid @enderror" value="{{ $pasien->nama }}">

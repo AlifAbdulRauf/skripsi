@@ -40,7 +40,18 @@
                     <form action="{{ route('whatsapp.send') }}" method="POST" style="margin-left: 10px;">
                         @csrf
                         <input type="hidden" name="phone" value="{{ $nomor_hp }}">
-                        <input type="hidden" name="message" value="Halo Ini dari Admin Klinik Xenon Dental House, jangan lupa hari ini datang perawatan pada jam {{ $res->jam_mulai }} yaa">
+                        <input type="hidden" name="message" 
+                                value="*Reminder Reservasi Klinik Gigi Xenon Dental House*
+
+Halo kak {{ $res->nama }} assalamualaikum semoga selalu dalam kondisi sehat 😊
+Ini dari Admin Klinik Xenon Dental House. 
+
+Jangan lupa hari ini adalah jadwal kontrol Kakak:
+🗓️ *Tanggal: {{  \Carbon\Carbon::parse($res->tanggal)->format('d-m-Y') }}* 
+⏰ *Jam: {{ $res->jam_mulai }} WIB*
+
+Mohon hadir tepat waktu ya! 😊 
+Jika ada kendala, silakan hubungi kami di *082288051901*">
                         <button type="submit" class="btn">
                             <i class="fab fa-whatsapp" style="font-size:6mm; color: green"></i>
                         </button>
@@ -62,7 +73,6 @@
             </td>
         </tr>
         @endforeach
-
     </tbody>
 </table>
 

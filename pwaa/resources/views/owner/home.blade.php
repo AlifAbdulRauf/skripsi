@@ -112,93 +112,108 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Treatment Bar Chart
+// Treatment Chart
 const treatmentCtx = document.getElementById('treatmentChart').getContext('2d');
-    const treatmentChart = new Chart(treatmentCtx, {
-        type: 'bar',
-        data: {
-            labels: {!! json_encode($treatments->pluck('jenis_Perawatan')->toArray()) !!},  // Label jenis perawatan
-            datasets: [{
-                label: 'Jumlah Perawatan',  // Label pada grafik
-                data: {!! json_encode($treatments->pluck('total')->toArray()) !!},  // Data jumlah perawatan
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],  // Warna untuk setiap batang
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    beginAtZero: true  // Memastikan sumbu x dimulai dari nol
-                },
-                y: {
-                    beginAtZero: true  // Memastikan sumbu y dimulai dari nol
-                }
+const treatmentChart = new Chart(treatmentCtx, {
+    type: 'bar',
+    data: {
+        labels: {!! json_encode($treatments->pluck('jenis_Perawatan')->toArray()) !!},  // Label jenis perawatan
+        datasets: [{
+            label: 'Jumlah Perawatan',  // Label pada grafik
+            data: {!! json_encode($treatments->pluck('total')->toArray()) !!},  // Data jumlah perawatan
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],  // Warna untuk setiap batang
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            x: {
+                beginAtZero: true  // Memastikan sumbu x dimulai dari nol
             },
-            plugins: {
-                legend: {
-                    display: true,  // Menampilkan legenda
-                    position: 'top',  // Posisi legenda di atas grafik
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return tooltipItem.dataset.label + ': ' + tooltipItem.raw;  // Menampilkan jumlah perawatan tanpa persentase
-                        }
+            y: {
+                beginAtZero: true,  // Memastikan sumbu y dimulai dari nol
+                ticks: {
+                    callback: function(value) {
+                        return Number.isInteger(value) ? value : ''; // Hanya tampilkan bilangan bulat
+                    }
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,  // Menampilkan legenda
+                position: 'top',  // Posisi legenda di atas grafik
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(tooltipItem) {
+                        return tooltipItem.dataset.label + ': ' + tooltipItem.raw;  // Menampilkan jumlah perawatan tanpa persentase
                     }
                 }
             }
         }
-    });
+    }
+});
 
-    // Patient Chart
-    const patientCtx = document.getElementById('patientChart').getContext('2d');
-    const patientChart = new Chart(patientCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Bayi', 'Anak', 'Remaja', 'Dewasa', 'Lansia'],
-            datasets: [{
-                label: 'Jumlah Pasien',
-                data: [{{ $patientStats->bayi }}, {{ $patientStats->anak }}, {{ $patientStats->remaja }}, {{ $patientStats->dewasa }}, {{ $patientStats->lansia }}],
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    beginAtZero: true
-                },
-                y: {
-                    beginAtZero: true
+// Patient Chart
+const patientCtx = document.getElementById('patientChart').getContext('2d');
+const patientChart = new Chart(patientCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Bayi', 'Anak', 'Remaja', 'Dewasa', 'Lansia'],
+        datasets: [{
+            label: 'Jumlah Pasien',
+            data: [{{ $patientStats->bayi }}, {{ $patientStats->anak }}, {{ $patientStats->remaja }}, {{ $patientStats->dewasa }}, {{ $patientStats->lansia }}],
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            x: {
+                beginAtZero: true
+            },
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return Number.isInteger(value) ? value : ''; // Hanya tampilkan bilangan bulat
+                    }
                 }
             }
         }
-    });
+    }
+});
 
-    // Doctor Performance Chart
-    const doctorCtx = document.getElementById('doctorChart').getContext('2d');
-    const doctorChart = new Chart(doctorCtx, {
-        type: 'bar',
-        data: {
-            labels: {!! json_encode($doctorPerformance->pluck('nama')->toArray()) !!},
-            datasets: [{
-                label: 'Jumlah Pasien',
-                data: {!! json_encode($doctorPerformance->pluck('total')->toArray()) !!},
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    beginAtZero: true
-                },
-                y: {
-                    beginAtZero: true
+// Doctor Performance Chart
+const doctorCtx = document.getElementById('doctorChart').getContext('2d');
+const doctorChart = new Chart(doctorCtx, {
+    type: 'bar',
+    data: {
+        labels: {!! json_encode($doctorPerformance->pluck('nama')->toArray()) !!},
+        datasets: [{
+            label: 'Jumlah Pasien',
+            data: {!! json_encode($doctorPerformance->pluck('total')->toArray()) !!},
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            x: {
+                beginAtZero: true
+            },
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return Number.isInteger(value) ? value : ''; // Hanya tampilkan bilangan bulat
+                    }
                 }
             }
         }
-    });
+    }
+});
 </script>
 
 <script>
